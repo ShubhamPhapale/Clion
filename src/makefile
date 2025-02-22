@@ -1,6 +1,6 @@
 CC = gcc
 SRC = *.c pyrrhic/tbprobe.c noobprobe/noobprobe.c
-EXE = berserk
+EXE = Clion
 VERSION = 4.6.0
 
 LIBS = -lm -lpthread
