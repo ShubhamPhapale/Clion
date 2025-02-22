@@ -17,38 +17,39 @@ jobs:
           sudo apt-get install -y gcc make
 
       - name: Build Release Binaries
-        # This calls the "release" target in your makefile.
-        run: make release
+        run: |
+          cd src
+          make release
 
       - name: List Release Artifacts
-        run: ls -l ../dist
+        run: ls -l src/dist
 
       - name: Upload Artifact - Default (no extra flags)
         uses: actions/upload-artifact@v4
         with:
           name: ${{ github.sha }}-linux-default
-          path: ../dist/Clion-4.6.0-x64
+          path: src/dist/Clion-4.6.0-x64
 
       - name: Upload Artifact - POPCNT Variant
         uses: actions/upload-artifact@v4
         with:
           name: ${{ github.sha }}-linux-popcnt
-          path: ../dist/Clion-4.6.0-x64-popcnt*
+          path: src/dist/Clion-4.6.0-x64-popcnt*
 
       - name: Upload Artifact - PEXT Variant
         uses: actions/upload-artifact@v4
         with:
           name: ${{ github.sha }}-linux-pext
-          path: ../dist/Clion-4.6.0-x64-pext*
+          path: src/dist/Clion-4.6.0-x64-pext*
 
       - name: Upload Artifact - AVX2 Variant
         uses: actions/upload-artifact@v4
         with:
           name: ${{ github.sha }}-linux-avx2
-          path: ../dist/Clion-4.6.0-x64-avx2*
+          path: src/dist/Clion-4.6.0-x64-avx2*
 
       - name: Upload Artifact - AVX2+PEXT Variant
         uses: actions/upload-artifact@v4
         with:
           name: ${{ github.sha }}-linux-avx2-pext
-          path: ../dist/Clion-4.6.0-x64-avx2-pext*
+          path: src/dist/Clion-4.6.0-x64-avx2-pext*
