@@ -2,59 +2,53 @@ name: OpenBench Build
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   build-linux:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Install build dependencies
+      - name: Install Build Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y gcc make
 
-      # Build release binary using POPCNT flags
-      - name: Build release (POPCNT)
+      - name: Build Release Binaries
+        # This calls the "release" target in your makefile.
         run: make release
-      - name: List release artifacts (POPCNT)
+
+      - name: List Release Artifacts
         run: ls -l ../dist
-      - name: Upload artifact - POPCNT
+
+      - name: Upload Artifact - Default (no extra flags)
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ github.sha }}-linux-default
+          path: ../dist/Clion-4.6.0-x64
+
+      - name: Upload Artifact - POPCNT Variant
         uses: actions/upload-artifact@v3
         with:
           name: ${{ github.sha }}-linux-popcnt
           path: ../dist/Clion-4.6.0-x64-popcnt*
 
-      - name: Clean build artifacts
-        run: make clean
+      - name: Upload Artifact - PEXT Variant
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ github.sha }}-linux-pext
+          path: ../dist/Clion-4.6.0-x64-pext*
 
-      # Build release binary using AVX2 flags
-      - name: Build release (AVX2)
-        run: make avx2
-      - name: List release artifacts (AVX2)
-        run: ls -l ../dist
-      - name: Upload artifact - AVX2
+      - name: Upload Artifact - AVX2 Variant
         uses: actions/upload-artifact@v3
         with:
           name: ${{ github.sha }}-linux-avx2
           path: ../dist/Clion-4.6.0-x64-avx2*
 
-      - name: Clean build artifacts
-        run: make clean
-
-      # Build release binary using PEXT flags
-      - name: Build release (PEXT)
-        run: make pext
-      - name: List release artifacts (PEXT)
-        run: ls -l ../dist
-      - name: Upload artifact - PEXT
+      - name: Upload Artifact - AVX2+PEXT Variant
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ github.sha }}-linux-pext
-          path: ../dist/Clion-4.6.0-x64-pext*
+          name: ${{ github.sha }}-linux-avx2-pext
+          path: ../dist/Clion-4.6.0-x64-avx2-pext*
