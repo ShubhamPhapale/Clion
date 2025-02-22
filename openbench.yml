@@ -1,30 +1,60 @@
 name: OpenBench Build
+
 on:
   push:
-  workflow_dispatch:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
-  build_and_archive:
-    name: Build and Archive
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        nnue_flags: [avx2, avx512]
-        cpu_flags: [popcnt, pext]
-
-    runs-on: ${{ matrix.os }}
+  build-linux:
+    runs-on: ubuntu-latest
     steps:
-    - name: Setup Linux GCC ${{ matrix.version }}
-      uses: egor-tensin/setup-gcc@v1
-      with:
-        version: 11
-        platform: x86
-    - name: Clone Clion
-      uses: actions/checkout@v3
-    - name: Build Clion ${{ matrix.flags }}
-      run: make EVALFILE=none CC=gcc static=1 ${{ matrix.nnue_flags }}=1 ${{ matrix.cpu_flags }}=1
-    - name: Archive ${{ matrix.nnue_flags }}-${{ matrix.cpu_flags }}
-      uses: actions/upload-artifact@v3
-      with:
-        name: ${{ github.sha }}-linux-${{ matrix.nnue_flags }}-${{ matrix.cpu_flags }}
-        path: Clion
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc make
+
+      # Build release binary using POPCNT flags
+      - name: Build release (POPCNT)
+        run: make release
+      - name: List release artifacts (POPCNT)
+        run: ls -l ../dist
+      - name: Upload artifact - POPCNT
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ github.sha }}-linux-popcnt
+          path: ../dist/Clion-4.6.0-x64-popcnt*
+
+      - name: Clean build artifacts
+        run: make clean
+
+      # Build release binary using AVX2 flags
+      - name: Build release (AVX2)
+        run: make avx2
+      - name: List release artifacts (AVX2)
+        run: ls -l ../dist
+      - name: Upload artifact - AVX2
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ github.sha }}-linux-avx2
+          path: ../dist/Clion-4.6.0-x64-avx2*
+
+      - name: Clean build artifacts
+        run: make clean
+
+      # Build release binary using PEXT flags
+      - name: Build release (PEXT)
+        run: make pext
+      - name: List release artifacts (PEXT)
+        run: ls -l ../dist
+      - name: Upload artifact - PEXT
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ github.sha }}-linux-pext
+          path: ../dist/Clion-4.6.0-x64-pext*
